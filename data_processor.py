@@ -172,19 +172,21 @@ class ItemLoader:
 
 
 class BalancedDataCurator(DataCuratorInterface):
-    """Curates data to create balanced price distribution (Single Responsibility)"""
+    """
+    Curates data to create balanced price distribution (Single Responsibility)
+    """
     
     def __init__(self, config: DatasetConfig):
         self.config = config
     
     def curate_items(self, items: List[Item]) -> List[Item]:
-        """Create balanced dataset with improved price distribution"""
-        # Group items by rounded price
+        """
+        Create balanced dataset with improved price distribution
+        """
         slots = defaultdict(list)
         for item in items:
             slots[round(item.price)].append(item)
         
-        # Set random seeds for reproducibility
         np.random.seed(self.config.random_seed)
         random.seed(self.config.random_seed)
         
@@ -210,13 +212,17 @@ class BalancedDataCurator(DataCuratorInterface):
 
 
 class RandomDataSplitter(DataSplitterInterface):
-    """Splits data randomly into train/test sets (Single Responsibility)"""
+    """
+    Splits data randomly into train/test sets (Single Responsibility)
+    """
     
     def __init__(self, random_seed: int = 42):
         self.random_seed = random_seed
     
     def split_data(self, items: List[Item], train_size: int, test_size: int) -> Tuple[List[Item], List[Item]]:
-        """Split items into training and test sets"""
+        """
+        Split items into training and test sets
+        """
         random.seed(self.random_seed)
         random.shuffle(items)
         
@@ -228,20 +234,28 @@ class RandomDataSplitter(DataSplitterInterface):
 
 
 class PickleDataExporter(DataExporterInterface):
-    """Exports data to pickle files (Single Responsibility)"""
+    """
+    Exports data to pickle files (Single Responsibility)
+    """
     
     def export_data(self, data: Any, filename: str) -> None:
-        """Export data to pickle file"""
+        """
+        Export data to pickle file
+        """
         with open(filename, 'wb') as file:
             pickle.dump(data, file)
         print(f"Exported data to {filename}")
 
 
 class HuggingFaceDataExporter(DataExporterInterface):
-    """Exports data to HuggingFace format (Single Responsibility)"""
+    """
+    Exports data to HuggingFace format (Single Responsibility)
+    """
     
     def export_data(self, data: Tuple[List[Item], List[Item]], dataset_name: str) -> None:
-        """Export train/test data to HuggingFace dataset"""
+        """
+        Export train/test data to HuggingFace dataset
+        """
         train_data, test_data = data
         
         train_prompts = [item.prompt for item in train_data]
@@ -261,13 +275,16 @@ class HuggingFaceDataExporter(DataExporterInterface):
         # dataset.push_to_hub(dataset_name, private=True)
         print(f"Prepared dataset for HuggingFace: {dataset_name}")
 
-
 class DataVisualizer:
-    """Handles data visualization (Single Responsibility)"""
+    """
+    Handles data visualization (Single Responsibility)
+    """
     
     @staticmethod
     def plot_price_distribution(items: List[Item], title: str = "Price Distribution") -> None:
-        """Plot price distribution histogram"""
+        """
+        Plot price distribution histogram
+        """
         prices = [item.price for item in items]
         
         plt.figure(figsize=(15, 6))
@@ -279,7 +296,9 @@ class DataVisualizer:
     
     @staticmethod
     def plot_category_distribution(items: List[Item], title: str = "Category Distribution") -> None:
-        """Plot category distribution bar chart"""
+        """
+        Plot category distribution bar chart
+        """
         category_counts = Counter(item.category for item in items)
         categories = list(category_counts.keys())
         counts = list(category_counts.values())
@@ -301,7 +320,9 @@ class DataVisualizer:
 
 # Main Data Processing Pipeline (Open/Closed Principle - extensible)
 class DataProcessor:
-    """Main data processing pipeline orchestrator"""
+    """
+    Main data processing pipeline orchestrator
+    """
     
     def __init__(self, 
                  data_loader: DataLoaderInterface,
@@ -317,7 +338,9 @@ class DataProcessor:
         self.visualizer = DataVisualizer()
     
     def load_all_categories(self) -> List[Item]:
-        """Load items from all configured categories"""
+        """
+        Load items from all configured categories
+        """
         all_items = []
         
         for category in self.config.categories:
@@ -329,7 +352,9 @@ class DataProcessor:
         return all_items
     
     def process_full_pipeline(self) -> Tuple[List[Item], List[Item]]:
-        """Execute the complete data processing pipeline"""
+        """
+        Execute the complete data processing pipeline
+        """
         print("Starting data processing pipeline...")
         
         # Load data
@@ -338,21 +363,17 @@ class DataProcessor:
         # Visualize raw data
         self.visualizer.plot_price_distribution(items, "Raw Data Price Distribution")
         self.visualizer.plot_category_distribution(items, "Raw Data Category Distribution")
-        
         # Curate data
         curated_items = self.data_curator.curate_items(items)
-        
         # Visualize curated data
         self.visualizer.plot_price_distribution(curated_items, "Curated Data Price Distribution")
         self.visualizer.plot_category_distribution(curated_items, "Curated Data Category Distribution")
-        
         # Split data
         train_data, test_data = self.data_splitter.split_data(
             curated_items, 
             self.config.train_size, 
             self.config.test_size
         )
-        
         # Export data
         self.data_exporter.export_data(train_data, 'train.pkl')
         self.data_exporter.export_data(test_data, 'test.pkl')
@@ -363,11 +384,15 @@ class DataProcessor:
 
 # Factory Pattern for easy instantiation
 class DataProcessorFactory:
-    """Factory for creating data processor with default configuration"""
+    """
+    Factory for creating data processor with default configuration
+    """
     
     @staticmethod
     def create_default_processor() -> DataProcessor:
-        """Create data processor with default implementations"""
+        """
+        Create data processor with default implementations
+        """
         config = DatasetConfig()
         data_loader = HuggingFaceDataLoader()
         data_curator = BalancedDataCurator(config)
@@ -382,8 +407,6 @@ class DataProcessorFactory:
             config=config
         )
 
-
-# Usage Example
 if __name__ == "__main__":
     # Create and run data processor
     processor = DataProcessorFactory.create_default_processor()
