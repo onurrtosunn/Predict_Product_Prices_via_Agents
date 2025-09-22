@@ -15,7 +15,9 @@ import matplotlib.pyplot as plt
 
 # Abstract Interfaces (Dependency Inversion Principle)
 class DataLoaderInterface(ABC):
-    """Interface for data loading operations"""
+    """
+    Interface for data loading operations
+    """
     
     @abstractmethod
     def load_dataset(self, category: str) -> Any:
@@ -23,7 +25,9 @@ class DataLoaderInterface(ABC):
 
 
 class DataCuratorInterface(ABC):
-    """Interface for data curation operations"""
+    """
+    Interface for data curation operations
+    """
     
     @abstractmethod
     def curate_items(self, dataset: Any) -> List[Any]:
@@ -31,7 +35,9 @@ class DataCuratorInterface(ABC):
 
 
 class DataSplitterInterface(ABC):
-    """Interface for data splitting operations"""
+    """
+    Interface for data splitting operations
+    """
     
     @abstractmethod
     def split_data(self, items: List[Any], train_size: int, test_size: int) -> Tuple[List[Any], List[Any]]:
@@ -39,16 +45,19 @@ class DataSplitterInterface(ABC):
 
 
 class DataExporterInterface(ABC):
-    """Interface for data export operations"""
+    """
+    Interface for data export operations
+    """
     
     @abstractmethod
     def export_data(self, data: Any, filename: str) -> None:
         pass
 
 
-# Core Data Models (Single Responsibility Principle)
 class Item:
-    """Represents a product item with price estimation capabilities"""
+    """
+    Represents a product item with price estimation capabilities
+    """
     
     def __init__(self, datapoint: Dict[str, Any], price: float):
         from transformers import AutoTokenizer
@@ -70,18 +79,21 @@ class Item:
         self.token_count = len(tokens)
         
         # Determine if item should be included (minimum 50 characters)
-        self.include = len(self.text) >= 50 and 1 <= price <= 999
-        
+        self.include = len(self.text) >= 50 and 1 <= price <= 999    
         # Create training prompt
         self.prompt = f"Estimate the price of this item: {self.text}\n\nPrice is ${price:.0f}"
     
     def test_prompt(self) -> str:
-        """Generate test prompt without revealing the price"""
+        """
+        Generate test prompt without revealing the price
+        """
         return f"Estimate the price of this item: {self.text} to the nearest dollar\n\nPrice is $"
 
 
 class DatasetConfig:
-    """Configuration for dataset processing (Single Responsibility)"""
+    """
+    Configuration for dataset processing (Single Responsibility)
+    """
     
     def __init__(self):
         self.categories = [
@@ -97,13 +109,17 @@ class DatasetConfig:
 
 # Concrete Implementations
 class HuggingFaceDataLoader(DataLoaderInterface):
-    """Loads data from HuggingFace datasets (Single Responsibility)"""
+    """
+    Loads data from HuggingFace datasets (Single Responsibility)
+    """
     
     def __init__(self):
         self._setup_environment()
     
     def _setup_environment(self) -> None:
-        """Setup environment variables and authentication"""
+        """
+        Setup environment variables and authentication
+        """
         load_dotenv(override=True)
         hf_token = os.getenv('HF_TOKEN')
         if hf_token:
@@ -124,14 +140,18 @@ class HuggingFaceDataLoader(DataLoaderInterface):
 
 
 class ItemLoader:
-    """Utility class for loading items from datasets"""
+    """
+    Utility class for loading items from datasets
+    """
     
     def __init__(self, category: str, data_loader: DataLoaderInterface):
         self.category = category
         self.data_loader = data_loader
     
     def load(self) -> List[Item]:
-        """Load and convert dataset to Item objects"""
+        """
+        Load and convert dataset to Item objects
+        """
         dataset = self.data_loader.load_dataset(self.category)
         if not dataset:
             return []
