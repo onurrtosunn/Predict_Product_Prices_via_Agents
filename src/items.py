@@ -3,11 +3,11 @@
 from typing import Optional
 from transformers import AutoTokenizer
 
-from config import (
+from src.config import (
     BASE_MODEL, MIN_TOKENS, MAX_TOKENS, MIN_CHARS, CEILING_CHARS,
     PRICE_PREFIX, PRICE_QUESTION
 )
-from text_utils import TextCleaner, ContentAggregator
+from src.text_utils import TextCleaner, ContentAggregator
 
 class Item:
     """Curated product datapoint with price and tokenized prompt."""

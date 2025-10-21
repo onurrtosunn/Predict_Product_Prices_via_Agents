@@ -2,7 +2,7 @@
 
 import re
 from typing import Optional, List
-from config import REMOVAL_PATTERNS
+from src.config import REMOVAL_PATTERNS
 
 
 class TextCleaner:
